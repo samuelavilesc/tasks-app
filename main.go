@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -25,5 +26,12 @@ func main() {
 		fmt.Fprintf(w, "Welcome to the Todo API!")
 	})
 
+	http.HandleFunc("/tasks", getTasks)
+
 	http.ListenAndServe(":8080", nil)
+}
+
+func getTasks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tasks)
 }
