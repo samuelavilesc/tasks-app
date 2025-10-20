@@ -26,12 +26,25 @@ func main() {
 		fmt.Fprintf(w, "Welcome to the Todo API!")
 	})
 
-	http.HandleFunc("/tasks", getTasks)
+	http.HandleFunc("/tasks", handleTasks)
 
 	http.ListenAndServe(":8080", nil)
 }
 
-func getTasks(w http.ResponseWriter, r *http.Request) {
+func handleTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tasks)
+
+	if r.Method == "GET" {
+		json.NewEncoder(w).Encode(tasks)
+		return
+	}
+
+	if r.Method == "POST" {
+		var newTask Task
+		_ = json.NewDecoder(r.Body).Decode(&newTask)
+		newTask.ID = fmt.Sprintf("%d", len(tasks)+1) // Simple ID generation
+		tasks = append(tasks, newTask)
+		json.NewEncoder(w).Encode(newTask)
+		return
+	}
 }
