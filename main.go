@@ -4,19 +4,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 // Task represents a to-do item
 type Task struct {
-	ID          string `json:"id"`
-	Title       string `json:"title"`
-	IsCompleted bool   `json:"is_completed"`
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	IsCompleted bool      `json:"is_completed"`
+	DueDate     time.Time `json:"due_date"`
 }
 
 // tasks simulates a database
 var tasks = []Task{
-	{ID: "1", Title: "Learn Go", IsCompleted: false},
-	{ID: "2", Title: "Build an API", IsCompleted: false},
+	{ID: "1", Title: "Learn Go", IsCompleted: false, DueDate: time.Now().Add(24 * time.Hour)},
+	{ID: "2", Title: "Build an API", IsCompleted: false, DueDate: time.Now().Add(48 * time.Hour)},
 }
 
 func main() {
