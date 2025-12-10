@@ -4,6 +4,7 @@ import './App.css';
 function App() {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState('');
+  const [dueDate, setDueDate] = useState('');
 
   useEffect(() => {
     fetch('http://localhost:8080/tasks')
@@ -16,15 +17,21 @@ function App() {
     e.preventDefault();
     if (!title) return;
 
+    const payload = {
+        title,
+        due_date: dueDate ? new Date(dueDate).toISOString() : null
+    };
+
     const res = await fetch('http://localhost:8080/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title }),
+      body: JSON.stringify(payload),
     });
     
     const newTask = await res.json();
     setTasks([...tasks, newTask]);
     setTitle('');
+    setDueDate('');
   };
 
   const deleteTask = async (id) => {
@@ -38,25 +45,38 @@ function App() {
         <h1>Todo List</h1>
       </header>
       <main>
-        <form onSubmit={addTask}>
+        <form onSubmit={addTask} className="task-form">
           <input 
             type="text" 
             value={title} 
             onChange={(e) => setTitle(e.target.value)} 
             placeholder="New task..." 
+            className="input-title"
+            required
           />
-          <button type="submit">Add</button>
+          <input 
+            type="datetime-local" 
+            value={dueDate} 
+            onChange={(e) => setDueDate(e.target.value)}
+            className="input-date" 
+          />
+          <button type="submit" className="btn-add">Add Task</button>
         </form>
-        <ul>
+        <div className="task-grid">
           {tasks.map(task => (
-            <li key={task.id}>
-              {task.title}
-              <button onClick={() => deleteTask(task.id)} style={{marginLeft: '10px'}}>
-                Delete
+            <div key={task.id} className="task-card">
+              <div className="task-content">
+                <h3>{task.title}</h3>
+                {task.due_date && (
+                    <p className="due-date">📅 {new Date(task.due_date).toLocaleString()}</p>
+                )}
+              </div>
+              <button onClick={() => deleteTask(task.id)} className="btn-delete">
+                🗑️
               </button>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </main>
     </div>
   );
