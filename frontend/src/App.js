@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import CalendarView from './CalendarView';
 
 function App() {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [view, setView] = useState('list'); // 'list' or 'calendar'
 
   useEffect(() => {
     fetch('http://localhost:8080/tasks')
@@ -43,6 +45,20 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>Todo List</h1>
+        <div className="view-toggle">
+          <button 
+            className={view === 'list' ? 'active' : ''} 
+            onClick={() => setView('list')}
+          >
+            List View
+          </button>
+          <button 
+            className={view === 'calendar' ? 'active' : ''} 
+            onClick={() => setView('calendar')}
+          >
+            Calendar View
+          </button>
+        </div>
       </header>
       <main>
         <form onSubmit={addTask} className="task-form">
@@ -62,21 +78,26 @@ function App() {
           />
           <button type="submit" className="btn-add">Add Task</button>
         </form>
-        <div className="task-grid">
-          {tasks.map(task => (
-            <div key={task.id} className="task-card">
-              <div className="task-content">
-                <h3>{task.title}</h3>
-                {task.due_date && (
-                    <p className="due-date">📅 {new Date(task.due_date).toLocaleString()}</p>
-                )}
+
+        {view === 'list' ? (
+          <div className="task-grid">
+            {tasks.map(task => (
+              <div key={task.id} className="task-card">
+                <div className="task-content">
+                  <h3>{task.title}</h3>
+                  {task.due_date && (
+                      <p className="due-date">📅 {new Date(task.due_date).toLocaleString()}</p>
+                  )}
+                </div>
+                <button onClick={() => deleteTask(task.id)} className="btn-delete">
+                  🗑️
+                </button>
               </div>
-              <button onClick={() => deleteTask(task.id)} className="btn-delete">
-                🗑️
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <CalendarView tasks={tasks} />
+        )}
       </main>
     </div>
   );
